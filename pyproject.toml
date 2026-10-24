@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "wardrobe"
+version = "0.2.0"
+description = "Moose's daily weather-fit ledger: SQLite-backed, repeat-guarded, agent-operated."
+readme = "README.md"
+requires-python = ">=3.15"
+dependencies = []
+
+[project.scripts]
+wardrobe = "wardrobe.cli:main"
+
+[dependency-groups]
+dev = [
+    "hypothesis>=6",
+    "pytest>=8",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/wardrobe"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
