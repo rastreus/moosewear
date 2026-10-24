@@ -10,9 +10,18 @@ Exit codes are part of the interface (the daily routine branches on
 them): 0 = clear/recorded, 3 = conflict or duplicate date.
 A Markdown mirror of the ledger is regenerated on every record,
 next to the database file.
+
+Database path resolution, first match wins:
+  1. the --db flag (absolute, or relative to the working directory)
+  2. the WARDROBE_DB environment variable
+  3. wardrobe.db in the project root (a fresh clone's starting point)
+
+The tool is the code; the ledger is the wearer's own data and lives
+wherever they point it — never inside a shared clone by default.
 """
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -114,7 +123,9 @@ def main(argv=None):
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     def common(p):
-        p.add_argument("--db", default=str(store.DEFAULT_DB))
+        p.add_argument("--db", default=None,
+                       help="ledger path (default: $WARDROBE_DB, else "
+                            "wardrobe.db in the project root)")
 
     p_list = sub.add_parser("list")
     common(p_list)
@@ -135,6 +146,7 @@ def main(argv=None):
         p.set_defaults(fn=fn)
 
     args = parser.parse_args(argv)
+    args.db = args.db or os.environ.get("WARDROBE_DB") or str(store.DEFAULT_DB)
     return args.fn(args)
 
 

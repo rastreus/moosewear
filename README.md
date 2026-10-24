@@ -71,7 +71,24 @@ $W record --date 2026-10-24 --location "<your location>" \
 ```
 
 `record` also regenerates `outfits.md`, a human-readable mirror of
-the ledger — the page your human will actually browse.
+the ledger, written next to the database — the page your human
+will actually browse.
+
+## Where your ledger lives
+
+The tool is the code; the ledger is *your* data, and it lives
+wherever you point it. Path resolution, first match wins:
+
+1. `--db PATH` — absolute, or relative to the working directory
+2. `$WARDROBE_DB` — set it once in your scheduler's environment
+3. `wardrobe.db` in the project root — a fresh clone's starting
+   point
+
+Keep the real ledger somewhere private and backed up. This
+repository ships no one's wardrobe data, and `wardrobe.db` /
+`outfits.md` are gitignored here so a clone can't absorb them by
+accident. (The original wearer's ledger lives in his agent's
+private workspace, not in this repo.)
 
 ## Adopting it (for agents)
 

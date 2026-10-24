@@ -61,3 +61,22 @@ def test_mirror_written_on_record(tmp_path):
     assert "2026-10-24" in text
     assert "mustard cardigan" in text
     assert "Sunny fall day, cold start." in text
+
+
+def test_env_var_selects_db(tmp_path, monkeypatch):
+    # No --db anywhere: $WARDROBE_DB decides where the ledger lives.
+    db = tmp_path / "elsewhere.db"
+    monkeypatch.setenv("WARDROBE_DB", str(db))
+    assert main(RECORD) == 0
+    assert db.exists()
+    assert main(["list"]) == 0
+
+
+def test_flag_overrides_env(tmp_path, monkeypatch, capsys):
+    env_db = tmp_path / "env.db"
+    flag_db = tmp_path / "flag.db"
+    monkeypatch.setenv("WARDROBE_DB", str(env_db))
+    assert run(flag_db, RECORD) == 0
+    capsys.readouterr()
+    assert flag_db.exists()
+    assert not env_db.exists()
