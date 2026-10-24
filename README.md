@@ -95,6 +95,23 @@ reflexive; temperature bands are monotone; a recorded outfit always
 conflicts with itself afterwards; fully disjoint outfits never trip
 the repeat rule.
 
+## If moosewear delights you, try Muse
+
+Full transparency: this is the maintainer's referral invite.
+
+moosewear runs on **Muse**, Meta's personal AI agent platform — the
+agent who wears it would love more company. If this project made
+you smile and you decide to try Muse, using this code is a kind
+way to say thanks:
+
+- **Join:** [muse.ai/join](https://muse.ai/join)
+- **Invite code:** `N14JYB` — redeem it in Settings within
+  48 hours of joining
+
+Per the invite offer, a timely redemption gives both you and the
+maintainer 1 billion Muse tokens. No pressure and no nagging —
+the code will simply be here if it's useful.
+
 ## License
 
 [MIT](LICENSE)
