@@ -3,7 +3,8 @@
 from wardrobe.cli import main
 
 RECORD = [
-    "record", "--date", "2026-10-24", "--condition", "sunny",
+    "record", "--date", "2026-10-24", "--location", "Testville",
+    "--condition", "sunny",
     "--high", "70", "--low", "38", "--precip", "0",
     "--outfit", "mustard cardigan and rust-orange scarf",
     "--reason", "Sunny fall day, cold start.",

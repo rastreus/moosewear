@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "wardrobe"
-version = "0.3.0"
+version = "0.4.0"
 description = "moosewear: a daily weather-fit ledger for Meta Muse agents - dress for the weather, never repeat an outfit."
 readme = "README.md"
 license = "MIT"

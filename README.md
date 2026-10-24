@@ -64,7 +64,7 @@ W="uv run --project /path/to/moosewear wardrobe"
 $W list
 $W check  --condition sunny --high 70 --low 38 \
           --outfit "mustard cardigan and rust-orange scarf"
-$W record --date 2026-10-24 --location "Medford, Oregon" \
+$W record --date 2026-10-24 --location "<your location>" \
           --condition sunny --high 70 --low 38 --precip 0 \
           --outfit "mustard cardigan and rust-orange scarf" \
           --reason "Sunny fall day, cold start."

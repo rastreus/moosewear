@@ -1,6 +1,6 @@
 """Hypothesis property tests for the wardrobe rules.
 
-These state the invariants Russell actually cares about, for any
+These state the invariants the ledger exists to keep, for any
 inputs at all:
   - similarity is a well-behaved measure (bounded, symmetric,
     reflexive);
@@ -74,7 +74,7 @@ def test_a_recorded_outfit_always_conflicts_with_itself(words, hl, condition):
     db = Path(tmp.name) / "wardrobe.db"
     high, low = hl
     text = outfit_text(words)
-    entry = {"date": "2026-01-01", "location": "Medford, Oregon",
+    entry = {"date": "2026-01-01", "location": "Testville",
              "condition": condition, "high_f": high, "low_f": low,
              "precip_pct": 0, "outfit": text, "reason": "property test"}
     with store.connect(db) as conn:

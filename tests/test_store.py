@@ -6,7 +6,7 @@ from wardrobe import store
 
 ENTRY = {
     "date": "2026-10-24",
-    "location": "Medford, Oregon",
+    "location": "Testville",
     "condition": "sunny",
     "high_f": 70,
     "low_f": 38,

@@ -2,8 +2,9 @@
 
     wardrobe list   [--db PATH]
     wardrobe check  --condition sunny --high 70 --low 38 --outfit "..."
-    wardrobe record --date 2026-10-24 --condition sunny --high 70 \
-        --low 38 [--precip 0] --outfit "..." --reason "..."
+    wardrobe record --date 2026-01-01 --location "Example City" \
+        --condition sunny --high 70 --low 38 [--precip 0] \
+        --outfit "..." --reason "..."
 
 Exit codes are part of the interface (the daily routine branches on
 them): 0 = clear/recorded, 3 = conflict or duplicate date.
@@ -128,7 +129,7 @@ def main(argv=None):
         p.add_argument("--outfit", required=True)
         if name == "record":
             p.add_argument("--date", required=True)
-            p.add_argument("--location", default="Medford, Oregon")
+            p.add_argument("--location", required=True)
             p.add_argument("--precip", type=int, default=0)
             p.add_argument("--reason", required=True)
         p.set_defaults(fn=fn)

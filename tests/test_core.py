@@ -4,7 +4,7 @@ from wardrobe.core import conflicts, jaccard, temp_band, tokens
 
 
 def test_tokens_lowercases_and_drops_stopwords():
-    assert tokens("The Moose wearing a RED Scarf") == {"red", "scarf"}
+    assert tokens("The wearer wearing a RED Scarf") == {"red", "scarf"}
 
 
 def test_tokens_keeps_short_content_words_out():

@@ -1,3 +1,3 @@
-"""Moose's wardrobe ledger package."""
+"""Wardrobe ledger package."""
 
 __all__ = ["core", "store"]

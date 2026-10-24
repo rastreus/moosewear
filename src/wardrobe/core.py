@@ -8,7 +8,7 @@ import re
 
 STOPWORDS = {
     "a", "an", "the", "and", "with", "of", "in", "on", "over", "under",
-    "moose", "wearing", "wears", "outfit", "look",
+    "wearer", "wearing", "wears", "outfit", "look",
 }
 
 BAND_RANK = {
