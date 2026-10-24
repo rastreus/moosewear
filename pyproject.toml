@@ -4,11 +4,21 @@ build-backend = "hatchling.build"
 
 [project]
 name = "wardrobe"
-version = "0.2.0"
-description = "Moose's daily weather-fit ledger: SQLite-backed, repeat-guarded, agent-operated."
+version = "0.3.0"
+description = "moosewear: a daily weather-fit ledger for Meta Muse agents - dress for the weather, never repeat an outfit."
 readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Russell Dillin" },
+]
+keywords = ["agent", "avatar", "wardrobe", "weather", "sqlite", "muse"]
 requires-python = ">=3.15"
 dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/rastreus/moosewear"
+Repository = "https://github.com/rastreus/moosewear"
+Issues = "https://github.com/rastreus/moosewear/issues"
 
 [project.scripts]
 wardrobe = "wardrobe.cli:main"

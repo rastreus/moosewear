@@ -1,4 +1,4 @@
-"""Command-line interface for the wardrobe ledger.
+"""Command-line interface for the moosewear wardrobe ledger.
 
     wardrobe list   [--db PATH]
     wardrobe check  --condition sunny --high 70 --low 38 --outfit "..."
@@ -27,16 +27,16 @@ def mirror_path(db_path):
 
 def render_md(entries):
     lines = [
-        "# Moose's Wardrobe - what I wore, when, and why",
+        "# Wardrobe - what the wearer wore, when, and why",
         "",
         "One entry per day, newest last. Kept in the SQLite ledger",
         "(`wardrobe.db`) and guarded by the wardrobe tool: no outfit",
         "repeats, and no outfit repeated for the same weather reason.",
-        "Moose himself never changes - only the clothing does.",
+        "The wearer never changes - only the clothing does.",
         "",
     ]
     if not entries:
-        lines.append("_No outfits yet. The first fit lands 2026-10-24._")
+        lines.append("_No outfits yet._")
         lines.append("")
     for e in entries:
         lines.append(f"## {e['date']} - {e['location']}")

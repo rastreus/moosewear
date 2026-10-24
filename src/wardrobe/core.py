@@ -1,4 +1,4 @@
-"""Moose's wardrobe ledger — pure outfit-similarity logic.
+"""The moosewear wardrobe ledger — pure outfit-similarity logic.
 
 No I/O here: every function is a deterministic function of its
 inputs, which is what makes the property tests meaningful.
@@ -55,7 +55,7 @@ def conflicts(entries, condition, high, low, outfit):
 
     `entries` are dicts with condition/high_f/low_f/outfit keys.
     Returns human-readable conflict strings; empty means clear.
-    Two rules (Russell's): the same outfit never repeats at all, and
+    Two rules (the wearer's): the same outfit never repeats at all, and
     an outfit never repeats for the same weather reason — same
     condition and temperature band — even at lower similarity.
     """
