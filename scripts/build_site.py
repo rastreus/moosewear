@@ -155,15 +155,16 @@ def thermometer(lo, hi):
             f'--hi:{b}%"></span></span>')
 
 
-def raindrop(pct):
-    """A droplet filled to the chance of precipitation."""
+def raindrop(pct, day):
+    """A droplet filled to the chance of precipitation; `day` keys its clipPath."""
     pct = max(0, min(100, int(pct)))
     top = 2 + 26 * (1 - pct / 100)
     path = "M13 2C9 8 4 13.5 4 19a9 9 0 0 0 18 0C22 13.5 17 8 13 2z"
+    clip = f"drop-{day}"
     return (f'<svg class="drop" viewBox="0 0 26 30" aria-hidden="true">'
-            f'<clipPath id="d{pct}"><path d="{path}"/></clipPath>'
+            f'<clipPath id="{clip}"><path d="{path}"/></clipPath>'
             f'<rect x="0" y="{top:.1f}" width="26" height="30" fill="#6aa9dc" '
-            f'clip-path="url(#d{pct})"/>'
+            f'clip-path="url(#{clip})"/>'
             f'<path d="{path}" fill="none" stroke="#4f97d1" stroke-width="1.8"/></svg>')
 
 
@@ -258,13 +259,12 @@ def streak(fits):
 
 # ---------- components ----------
 
-def photo(f, root, *, lazy=True, with_decor=False, sizes=""):
+def photo(f, root, *, lazy=True, with_decor=False):
     kind = sky_of(f["condition"])
     if f["has_image"]:
         loading = ' loading="lazy"' if lazy else ' fetchpriority="high"'
         inner = (f'<img src="{root}images/{f["date"]}.webp" width="1600" '
-                 f'height="1600" alt="{esc(f["outfit"])}"{loading} decoding="async"'
-                 f'{sizes}>')
+                 f'height="1600" alt="{esc(f["outfit"])}"{loading} decoding="async">')
     else:
         inner = (f'<span class="no-photo" role="img" aria-label="No photo for '
                  f'this day">{HANGER.format(cls="")}</span>')
@@ -279,7 +279,7 @@ def weather(f):
     <span class="temps-nums"><span class="lo">{f['low_f']}°</span><span class="hi">{f['high_f']}°F</span></span>
     {thermometer(f['low_f'], f['high_f'])}
     <span class="sr-only"> low {f['low_f']}°F, high {f['high_f']}°F</span></span></dd></div>
-  <div><dt>Rain</dt><dd>{raindrop(f['precip_pct'])}<span>{f['precip_pct']}% chance</span></dd></div>
+  <div><dt>Rain</dt><dd>{raindrop(f['precip_pct'], f['date'])}<span>{f['precip_pct']}% chance</span></dd></div>
 </dl>"""
 
 
@@ -380,7 +380,7 @@ def layout(title, body, root, *, description, body_class=""):
 <link rel="icon" href="{FAVICON}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="{FONTS}">
+<link rel="stylesheet" href="{esc(FONTS)}">
 <link rel="stylesheet" href="{root}assets/style.css?v={css_v}">
 <style>:root{{--hanger:url("{hanger_mask}")}}.sr-only{{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}}</style>
 <script src="{root}assets/site.js?v={js_v}" defer></script>
