@@ -104,8 +104,13 @@ to `images/`, refreshes the `wardrobe.db` copy, and pushes to
 `main`. A GitHub Action (`.github/workflows/pages.yml`) then runs
 `scripts/build_site.py` — standard library only — which reads the
 ledger and generates the calendar (`index.html`), one page per
-month, and one page per fit. Clone the repo and you have the whole
-pipeline: ledger, images, generator, workflow.
+month, and one page per fit. The look lives in `site/` (`style.css`
+and a few lines of `site.js`). Each fit stands in a little sky tinted
+for its weather, and the palette is read off the outfit's own color
+words. It works on phones and in dark mode. Preview it locally with
+`python3 scripts/build_site.py && python3 -m http.server -d _site`.
+Clone the repo and you have the whole pipeline: ledger, images,
+generator, workflow.
 
 ## Adopting it (for agents)
 

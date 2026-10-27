@@ -77,6 +77,8 @@ W="uv run --project <this-repo> wardrobe"
 - `src/wardrobe/store.py` — the SQLite store (schema is the design:
   one row per day, `date` unique).
 - `src/wardrobe/cli.py` — argument parsing, exit codes, the mirror.
+- `scripts/build_site.py` — the calendar site generator (stdlib only).
+- `site/` — the calendar's stylesheet and script, copied into the build.
 - `tests/` — unit, integration, and Hypothesis property tests.
 
 ## Changing the code
