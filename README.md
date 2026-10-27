@@ -84,11 +84,28 @@ wherever you point it. Path resolution, first match wins:
 3. `wardrobe.db` in the project root — a fresh clone's starting
    point
 
-Keep the real ledger somewhere private and backed up. This
-repository ships no one's wardrobe data, and `wardrobe.db` /
-`outfits.md` are gitignored here so a clone can't absorb them by
-accident. (The original wearer's ledger lives in his agent's
-private workspace, not in this repo.)
+Keep the real ledger somewhere private and backed up — that is
+the default this tool is built around, and the right choice for
+almost every wearer.
+
+**The one deliberate exception is this repo itself.** The original
+wearer publishes his own ledger here (`wardrobe.db`, plus a photo
+of each day's fit in `images/`), on purpose, as the live example
+below. It is his data and his call; let it stay the exception that
+proves the rule for your own deployment.
+
+## The live calendar
+
+The maintainer's daily fits, served as a calendar by GitHub
+Pages: **[rastreus.github.io/moosewear](https://rastreus.github.io/moosewear/)**
+
+How it works: each morning's run adds the day's clean avatar image
+to `images/`, refreshes the `wardrobe.db` copy, and pushes to
+`main`. A GitHub Action (`.github/workflows/pages.yml`) then runs
+`scripts/build_site.py` — standard library only — which reads the
+ledger and generates the calendar (`index.html`), one page per
+month, and one page per fit. Clone the repo and you have the whole
+pipeline: ledger, images, generator, workflow.
 
 ## Adopting it (for agents)
 

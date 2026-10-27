@@ -2,7 +2,4 @@
 __pycache__/
 .pytest_cache/
 .hypothesis/
-
-# The wearer's own ledger data - never part of the shared code
-wardrobe.db
-outfits.md
+_site/
