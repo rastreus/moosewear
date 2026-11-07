@@ -759,3 +759,44 @@ kbd {
   }
   .decor .fall { opacity: .6; top: var(--y, 30%); }
 }
+
+/* through the day: the day page's timeline of changes */
+.dayline { margin: 34px 0 6px; }
+.tl { list-style: none; margin: 14px 0 0; padding: 0; }
+.tl-item {
+  display: flex;
+  gap: 16px;
+  padding: 14px 0 14px 20px;
+  border-left: 3px solid var(--paper-deep);
+  position: relative;
+}
+.tl-item::before {
+  content: "";
+  position: absolute;
+  left: -7px;
+  top: 22px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--accent, #c8601d);
+}
+.tl-photo {
+  width: 96px;
+  height: 96px;
+  flex: none;
+  border-radius: 14px;
+  object-fit: cover;
+  box-shadow: 0 6px 14px -8px rgba(60, 40, 10, .45);
+}
+.tl-body { min-width: 0; }
+.tl-head { margin: 0 0 4px; display: flex; gap: 10px; align-items: baseline; }
+.tl-time { font-weight: 800; font-variant-numeric: tabular-nums; }
+.tl-label {
+  font: 700 12px/1 var(--body);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.tl-fit { margin: 0 0 4px; font-size: 17px; }
+.tl-reason { margin: 2px 0 0; color: var(--ink-soft); font-size: 15px; }
+.tl-item .buttons { margin: 4px 0; }

@@ -37,6 +37,44 @@ W="uv run --project <this-repo> wardrobe"
 7. **Report.** Tell your human the weather and the fit, in first
    person, briefly. This ritual exists to delight them.
 
+When you compose the outfit, also decompose it into **layers** and
+pass them to `record` as `--layers '<json>'`: a list of
+`{"name", "role"}` with at most one `outer` (the shell), any
+number of `extra` (scarf, gloves — sheddable), and the rest
+`core` (never comes off during the day). Names are short handles
+("quilted jacket"); the prose stays in the outfit text.
+
+## Through the day — checks and pajamas
+
+Layer checks run every four hours after the morning (11:27,
+15:27, 19:27); pajamas at 20:30. Each check:
+
+1. Read the state: `$W state --date <today>`. No morning record,
+   or no layers → stop; there is nothing to adjust.
+2. Read the weather *now* and for the hours ahead.
+3. Decide, with hysteresis — shed at ≥ 60 °F, restore at ≤ 52 °F,
+   so the fit cannot flap:
+   - Outer on and warm → `adjust --action shed --off "<names>"`.
+   - Layers off and cold again → `--action restore --on "<names>"`.
+   - Much colder than the morning low (≤ low − 8 °F), or rain/snow
+     arrived and the outer is not protective → `--action swap
+     --outer "<a heavier, novel coat>"` (with the current weather
+     passed for validation).
+   - Otherwise → `--action none`.
+4. On a change of dress, restyle the avatar with the new worn
+   text and save the photo as `images/<date>-<HHMM>.webp`.
+5. **Record every decision, including `none`** — the slot is the
+   idempotency key. An identical re-run is a no-op (`ALREADY
+   RECORDED`); a different decision in an occupied slot is
+   refused (`SLOT TAKEN`). Never work around either.
+6. Publish as the morning does, then report briefly: what the
+   weather did and what changed, or that nothing needed to.
+
+Pajamas: compose a novel set, `$W check-night --temp <now>` then
+`$W night --date <today> --temp <now> --outfit "..." --reason
+"..."`; restyle the avatar; photo as `images/<date>-2030.webp`;
+publish; report. The never-repeat rules guard pajamas too.
+
 ## Hard rules
 
 - **Never edit `wardrobe.db` by hand** (no ad-hoc SQL writes, no
@@ -47,6 +85,10 @@ W="uv run --project <this-repo> wardrobe"
 - **One outfit per date.** The database refuses a second row for a
   date (`DATE TAKEN`). If you are re-running a morning that already
   ran, report the existing outfit instead of forcing a new one.
+- **A slot's decision is final.** Events are unique per
+  (date, kind, time): an identical re-run is a no-op, a different
+  decision in an occupied slot is refused. Core layers never come
+  off during the day, and the outer is the only swappable piece.
 - **If dressing or recording fails**, still report the weather, say
   plainly what failed, and leave the ledger untouched. A gap in the
   ledger is honest; a fabricated entry is not.
@@ -75,7 +117,8 @@ W="uv run --project <this-repo> wardrobe"
 
 - `src/wardrobe/core.py` — the similarity rules as pure functions.
 - `src/wardrobe/store.py` — the SQLite store (schema is the design:
-  one row per day, `date` unique).
+  one outfit row per day, `date` unique; an events table for the
+  day's layer changes and pajamas, unique per date/kind/time).
 - `src/wardrobe/cli.py` — argument parsing, exit codes, the mirror.
 - `scripts/build_site.py` — the calendar site generator (stdlib only).
 - `site/` — the calendar's stylesheet and script, copied into the build.

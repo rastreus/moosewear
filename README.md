@@ -27,6 +27,25 @@ in [`AGENTS.md`](AGENTS.md).
 5. **Record** — `wardrobe record` writes the day into the ledger,
    with the reason this outfit suits this weather.
 
+## Through the day
+
+The morning outfit is recorded with its **layers** — one `outer`
+(the shell), any `extra` pieces (a scarf, gloves), and the `core`
+that stays on. Every four hours a check re-reads the weather and
+the current state (`wardrobe state`) and records an **event**:
+shed layers that have become too warm, restore them when it
+cools, swap the outer for a heavier coat if a front moves in — or
+record a no-change decision when the fit is still right. At 20:30
+the wearer changes into a **pajama set** (`wardrobe night`),
+itself guarded against repeats.
+
+Events live in their own table, unique per (date, kind, time):
+re-running any step with the same decision is a no-op, and a
+different decision in an occupied slot is refused — the schedule
+can stumble and re-fire without ever corrupting the day. The
+calendar site renders each day's events as a "Through the day"
+timeline on that day's page.
+
 ## What it enforces
 
 - **No outfit repeats, ever.** A candidate whose wording is ≥ 60%

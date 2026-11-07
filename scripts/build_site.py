@@ -464,6 +464,45 @@ def month_page(key, fits, months, all_fits, root=""):
     return layout(page_title, body, root, description=desc)
 
 
+EVENT_LABELS = {
+    "shed": "Layers off",
+    "restore": "Layers back on",
+    "swap": "A different coat",
+    "none": "Checked — no change",
+    "dress": "Pajamas",
+}
+
+
+def dayline(f, root):
+    """The day's timeline: every recorded change of dress."""
+    events = f.get("events") or []
+    if not events:
+        return ""
+    items = []
+    for ev in events:
+        label = EVENT_LABELS.get(ev["action"], ev["action"])
+        pic = ""
+        if ev.get("has_image"):
+            name = f"{ev['date']}-{ev['time'].replace(':', '')}.webp"
+            pic = (f'<img class="tl-photo" src="{root}images/{name}" '
+                   f'width="800" height="800" loading="lazy" '
+                   f'decoding="async" alt="{esc(ev["outfit"])}">')
+        if ev["action"] == "none":
+            body = f'<p class="tl-reason">{esc(ev["reason"])}</p>'
+        else:
+            body = (f'<p class="tl-fit">{esc(ev["outfit"])}</p>'
+                    f'{buttons(ev["outfit"])}'
+                    f'<p class="tl-reason">{esc(ev["reason"])}</p>')
+        items.append(
+            f'<li class="tl-item">{pic}<div class="tl-body">'
+            f'<p class="tl-head"><span class="tl-time">{esc(ev["time"])}</span>'
+            f'<span class="tl-label">{esc(label)}</span></p>{body}</div></li>')
+    return f"""<section class="dayline" aria-labelledby="dayline-title">
+  <h2 class="section-title" id="dayline-title">Through the day</h2>
+  <ol class="tl" role="list">{''.join(items)}</ol>
+</section>"""
+
+
 def day_page(f, prev_f, next_f, number):
     root = "../"
     d = d_of(f)
@@ -492,6 +531,7 @@ def day_page(f, prev_f, next_f, number):
   <p class="where">📍 {esc(f['location'])}</p>
 </header>
 {feature(f, root, on_day=True)}
+{dayline(f, root)}
 {nav}
 </main>"""
     return layout(f"{short_date(d)}, {d.year} · moosewear", body, root,
@@ -504,7 +544,30 @@ def load(db):
     con = sqlite3.connect(db)
     con.row_factory = sqlite3.Row
     try:
-        return [dict(r) for r in con.execute("SELECT * FROM outfits ORDER BY date")]
+        fits = [dict(r) for r in con.execute(
+            "SELECT * FROM outfits ORDER BY date")]
+        for f in fits:
+            raw = f.get("layers")
+            try:
+                f["layers"] = json.loads(raw) if raw else None
+            except json.JSONDecodeError:
+                f["layers"] = None
+        # Ledgers from before the events table existed still build.
+        has_events = con.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table'"
+            " AND name = 'events'").fetchone()
+        by_date = {}
+        if has_events:
+            for r in con.execute("SELECT * FROM events ORDER BY date, time"):
+                ev = dict(r)
+                try:
+                    ev["detail"] = json.loads(ev.get("detail") or "{}")
+                except json.JSONDecodeError:
+                    ev["detail"] = {}
+                by_date.setdefault(ev["date"], []).append(ev)
+        for f in fits:
+            f["events"] = by_date.get(f["date"], [])
+        return fits
     finally:
         con.close()
 
@@ -515,6 +578,9 @@ def build(db, out, images=IMAGES):
         sys.exit("no outfits in ledger — nothing to build")
     for f in fits:
         f["has_image"] = (images / f"{f['date']}.webp").is_file()
+        for ev in f["events"]:
+            name = f"{ev['date']}-{ev['time'].replace(':', '')}.webp"
+            ev["has_image"] = (images / name).is_file()
 
     if out.exists():
         shutil.rmtree(out)
@@ -540,7 +606,12 @@ def build(db, out, images=IMAGES):
         (out / "day" / f"{f['date']}.html").write_text(
             day_page(f, prev_f, next_f, i + 1), encoding="utf-8")
 
-    public = [{k: v for k, v in f.items() if k != "has_image"} for f in fits]
+    public = []
+    for f in fits:
+        pf = {k: v for k, v in f.items() if k != "has_image"}
+        pf["events"] = [{k: v for k, v in ev.items() if k != "has_image"}
+                        for ev in f["events"]]
+        public.append(pf)
     (out / "fits.json").write_text(json.dumps(public, indent=2), encoding="utf-8")
     return fits, months
 
