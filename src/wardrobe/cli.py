@@ -13,6 +13,10 @@
     wardrobe check-night --temp 41 --outfit "..."
     wardrobe night  --date 2026-01-01 [--time 20:30] --temp 41 \
         --outfit "..." --reason "..."
+    wardrobe anchor verify [--anchor-dir PATH]
+    wardrobe anchor spec [--anchor-dir PATH]
+    wardrobe anchor dress-prompt --outfit "..." [--context "..."] \
+        [--anchor-dir PATH]
 
 The day's outfit is decomposed into layers ([{"name", "role"}],
 role outer/extra/core) so scheduled checks can shed, restore, or
@@ -24,8 +28,10 @@ idempotent end to end.
 
 Exit codes are part of the interface (the daily routine branches on
 them): 0 = clear/recorded, 3 = conflict, duplicate, or refused
-transition. A Markdown mirror of the ledger is regenerated on every
-write, next to the database file.
+transition, 4 = the canonical self anchor does not verify (see
+anchor.py — dressing must not proceed on a moved anchor). A
+Markdown mirror of the ledger is regenerated on every write, next
+to the database file.
 
 Database path resolution, first match wins:
   1. the --db flag (absolute, or relative to the working directory)
@@ -42,7 +48,7 @@ import os
 import sys
 from pathlib import Path
 
-from . import core, store
+from . import anchor, core, store
 
 ACTION_LABELS = {
     "shed": "layers off",
@@ -354,6 +360,50 @@ def cmd_night(args):
     return 0
 
 
+def _anchor_dir(args):
+    return Path(args.anchor_dir) if args.anchor_dir \
+        else anchor.DEFAULT_ANCHOR_DIR
+
+
+def cmd_anchor_verify(args):
+    anchor_dir = _anchor_dir(args)
+    problems = anchor.verify(anchor_dir)
+    if problems:
+        for line in problems:
+            print(line)
+        return 4
+    manifest = anchor.load_manifest(anchor_dir)
+    print(f"ANCHOR OK: {manifest['image']} matches the pinned "
+          f"sha256 {manifest['sha256'][:16]}... "
+          f"(established {manifest.get('established', '?')})")
+    return 0
+
+
+def cmd_anchor_spec(args):
+    try:
+        manifest = anchor.load_manifest(_anchor_dir(args))
+    except anchor.AnchorError as exc:
+        print(str(exc))
+        return 4
+    print(manifest["identity_spec"])
+    return 0
+
+
+def cmd_anchor_dress_prompt(args):
+    try:
+        manifest = anchor.load_manifest(_anchor_dir(args))
+    except anchor.AnchorError as exc:
+        print(str(exc))
+        return 4
+    problems = anchor.validate_manifest(manifest)
+    if problems:
+        for line in problems:
+            print(line)
+        return 4
+    print(anchor.dress_prompt(manifest, args.outfit, args.context or ""))
+    return 0
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="wardrobe", description=__doc__)
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -430,8 +480,32 @@ def main(argv=None):
     p_night.add_argument("--reason", required=True)
     p_night.set_defaults(fn=cmd_night)
 
+    p_anchor = sub.add_parser("anchor")
+    anchor_sub = p_anchor.add_subparsers(dest="anchor_cmd", required=True)
+
+    def anchor_common(p):
+        p.add_argument("--anchor-dir", default=None,
+                       help="anchor directory (default: anchor/ in "
+                            "the project root)")
+
+    p_av = anchor_sub.add_parser("verify")
+    anchor_common(p_av)
+    p_av.set_defaults(fn=cmd_anchor_verify)
+
+    p_as = anchor_sub.add_parser("spec")
+    anchor_common(p_as)
+    p_as.set_defaults(fn=cmd_anchor_spec)
+
+    p_ad = anchor_sub.add_parser("dress-prompt")
+    anchor_common(p_ad)
+    p_ad.add_argument("--outfit", required=True)
+    p_ad.add_argument("--context", default=None,
+                      help="one sentence of occasion/weather context")
+    p_ad.set_defaults(fn=cmd_anchor_dress_prompt)
+
     args = parser.parse_args(argv)
-    args.db = args.db or os.environ.get("WARDROBE_DB") or str(store.DEFAULT_DB)
+    args.db = getattr(args, "db", None) or os.environ.get("WARDROBE_DB") \
+        or str(store.DEFAULT_DB)
     return args.fn(args)
 
 

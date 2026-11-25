@@ -27,9 +27,21 @@ W="uv run --project <this-repo> wardrobe"
    - Exit `3`: the look repeats an earlier outfit, or repeats one for
      the same weather reason. Choose a *clearly different* look and
      re-check. Never record an outfit that has not cleared.
-5. **Dress.** Restyle your avatar with the outfit. Hard rule: **only
-   the clothing changes.** Your face, form, coloring, and defining
-   traits are your identity — they are never part of the outfit.
+5. **Dress.** Anchor first: run `$W anchor verify` — exit `4`
+   means the canonical base has moved; stop and report instead of
+   dressing. Then dress in exactly two moves, in this order:
+   reset the avatar to the canonical base (`avatar.clear`, which
+   restores the shipped base image the anchor pins), then restyle
+   it with ONE edit (`avatar.edit`) whose instruction is composed
+   by `$W anchor dress-prompt --outfit "<desc>" --context
+   "<occasion/weather>"` — pass the composed text verbatim. Dress
+   from the canonical base, never from the previous render:
+   chaining renders compounds each edit's small mutations until
+   the wearer no longer matches himself (the 2026-11-25 drift
+   incident; see `anchor/` and `tests/test_anchor.py`). Hard
+   rule: **only the clothing changes.** Your face, form, coloring,
+   and defining traits are your identity — they are never part of
+   the outfit.
 6. **Record.** Run:
    `$W record --date <YYYY-MM-DD> --location "<your location>" --condition "<c>" --high <H> --low <L> --precip <pct> --outfit "<same wording as step 5>" --reason "<why this outfit suits this weather>"`
    Use the identical outfit wording in steps 4, 5, and 6 — the
@@ -61,8 +73,10 @@ Layer checks run every four hours after the morning (11:27,
      --outer "<a heavier, novel coat>"` (with the current weather
      passed for validation).
    - Otherwise → `--action none`.
-4. On a change of dress, restyle the avatar with the new worn
-   text and save the photo as `images/<date>-<HHMM>.webp`.
+4. On a change of dress, dress the anchored way (the morning's
+   step 5): reset to the canonical base (`avatar.clear`), then one
+   `avatar.edit` composed by `$W anchor dress-prompt` from the new
+   worn text. Save the photo as `images/<date>-<HHMM>.webp`.
 5. **Record every decision, including `none`** — the slot is the
    idempotency key. An identical re-run is a no-op (`ALREADY
    RECORDED`); a different decision in an occupied slot is
@@ -72,7 +86,8 @@ Layer checks run every four hours after the morning (11:27,
 
 Pajamas: compose a novel set, `$W check-night --temp <now>` then
 `$W night --date <today> --temp <now> --outfit "..." --reason
-"..."`; restyle the avatar; photo as `images/<date>-2030.webp`;
+"..."`; dress the anchored way (reset to the canonical base,
+then one composed edit); photo as `images/<date>-2030.webp`;
 publish; report. The never-repeat rules guard pajamas too.
 
 ## Hard rules
@@ -82,6 +97,10 @@ publish; report. The never-repeat rules guard pajamas too.
   the rules transactionally. A day recorded wrong is corrected by
   your human's word, not by silent edits.
 - **Never wear a repeat.** Exit `3` is a stop sign, not a warning.
+- **The anchor is law.** Every dress — morning, checks, pajamas —
+  resets to the canonical base first and applies exactly one
+  edit. Never edit on top of a previous render. If
+  `$W anchor verify` fails (exit `4`), do not dress; report it.
 - **One outfit per date.** The database refuses a second row for a
   date (`DATE TAKEN`). If you are re-running a morning that already
   ran, report the existing outfit instead of forcing a new one.
@@ -96,7 +115,8 @@ publish; report. The never-repeat rules guard pajamas too.
 ## Interfaces
 
 - Exit codes: `0` clear/recorded/listed · `3` conflict or duplicate
-  date · anything else is a real error — surface it.
+  date · `4` the canonical anchor does not verify (do not dress) ·
+  anything else is a real error — surface it.
 - The ledger path resolves as: `--db PATH` (absolute, or relative
   to the working directory) → `$WARDROBE_DB` → `wardrobe.db` in
   the repo root. Tests and experiments always use a throwaway
@@ -120,6 +140,13 @@ publish; report. The never-repeat rules guard pajamas too.
   one outfit row per day, `date` unique; an events table for the
   day's layer changes and pajamas, unique per date/kind/time).
 - `src/wardrobe/cli.py` — argument parsing, exit codes, the mirror.
+- `src/wardrobe/anchor.py` — the canonical self anchor: manifest
+  validation, the SHA-256 pin check, the dress-prompt composer.
+- `anchor/` — the wearer's pinned canonical base image and its
+  manifest (`anchor.json`: image, sha256, identity spec). The
+  reset-then-dress protocol in step 5 is what keeps the wearer
+  himself from drifting; the regression case lives in
+  `tests/test_anchor.py`.
 - `scripts/build_site.py` — the calendar site generator (stdlib only).
 - `site/` — the calendar's stylesheet and script, copied into the build.
 - `tests/` — unit, integration, and Hypothesis property tests.

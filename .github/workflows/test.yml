@@ -1,0 +1,27 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Run the test suite
+        # Includes the anchor regression case
+        # (tests/test_anchor.py, anchor-drift-2026-11-25): the
+        # pinned canonical base image must verify against its
+        # manifest on every push, so the anchor cannot move
+        # silently.
+        run: uv run --frozen pytest
