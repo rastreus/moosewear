@@ -39,20 +39,23 @@ jobs:
         with:
           path: "_site"
 
+      # The deploy step intermittently fails with "No artifacts named
+      # github-pages were found for this workflow run" even though the
+      # upload step just succeeded — the artifact exists but is not yet
+      # visible to the deploy step's lookup. The first attempt is
+      # therefore allowed to fail (continue-on-error): wait, then retry
+      # once, and a fresh lookup sees it. The retry carries no such
+      # allowance, so the run fails only if BOTH attempts fail.
       - name: Deploy to GitHub Pages
         id: deployment
+        continue-on-error: true
         uses: actions/deploy-pages@v5
 
-      # The deploy step intermittently failed with "No artifacts named
-      # github-pages were found for this workflow run" even though the
-      # upload step had just succeeded — the artifact exists but is not
-      # yet visible to the deploy step's lookup. Wait, then retry once;
-      # a fresh lookup sees it.
       - name: Wait before deploy retry
-        if: failure() && steps.deployment.outcome == 'failure'
+        if: steps.deployment.outcome == 'failure'
         run: sleep 60
 
       - name: Deploy to GitHub Pages (retry)
         id: deployment_retry
-        if: failure() && steps.deployment.outcome == 'failure'
+        if: steps.deployment.outcome == 'failure'
         uses: actions/deploy-pages@v5
